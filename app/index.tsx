@@ -52,11 +52,6 @@ export default function Index() {
       <Text style={styles.texto1}>
   Bem-vindo(a) ao início de uma nova jornada!
 </Text>
-<Text style={styles.texto2}>
-  Cada passo que você dá é uma página da sua história. Hoje, você está escrevendo um novo capítulo repleto de possibilidades. 
-  Entre na sua conta ou crie um novo registro, e comece a construir a história que você sempre sonhou viver. O futuro está ao seu alcance,
-  pronto para ser vivido!
-</Text>
 
       {errorLogin ? <Text style={styles.errorText}>{errorLogin}</Text> : null}
         <TextInput
@@ -100,12 +95,7 @@ const styles = StyleSheet.create({
   texto1:{
     fontSize:25,
     textAlign:'center',
-    marginBottom:20,
-  },
-  texto2:{
-    fontSize:17,
-    textAlign:'center',
-    marginBottom:40
+    marginBottom:30,
   },
   input: {
     fontSize: 20,
