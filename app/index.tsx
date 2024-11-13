@@ -1,8 +1,8 @@
 import { useRouter } from 'expo-router';
 import { signInWithEmailAndPassword } from 'firebase/auth';
 import { useEffect, useState } from 'react';
-import { Animated, ImageBackground, StatusBar, StyleSheet, Text, TextInput, TouchableOpacity, View } from "react-native";
-import { Ionicons } from 'react-native-vector-icons'; // Importando ícone do Ionicons
+import { ActivityIndicator, Animated, ImageBackground, StatusBar, StyleSheet, Text, TextInput, TouchableOpacity, View } from "react-native";
+import { Ionicons } from 'react-native-vector-icons';
 import { auth } from '../scripts/firebase-config';
 
 export default function Index() {
@@ -10,7 +10,9 @@ export default function Index() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [errorLogin, setErrorLogin] = useState("");
-  const [showPassword, setShowPassword] = useState(false);  // Estado para controle de visibilidade da senha
+  const [successMessage, setSuccessMessage] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
+  const [isLoading, setIsLoading] = useState(false); // Novo estado de carregamento
 
   const validarCampos = () => {
     if (email === "") {
@@ -24,15 +26,23 @@ export default function Index() {
   };
 
   const login = () => {
+    setIsLoading(true); // Ativa o carregamento
     signInWithEmailAndPassword(auth, email, password)
       .then((userCredential) => {
         setEmail("");
         setPassword("");
         setErrorLogin("");
-        router.push('/internas/tasks');
+        setSuccessMessage("Login concluído com sucesso!");
+
+        setTimeout(() => {
+          setSuccessMessage("");
+          setIsLoading(false); 
+          router.push('/internas/tasks');
+        }, 2000); 
       })
       .catch((error) => {
         setErrorLogin("Erro ao fazer login: " + error.message);
+        setIsLoading(false); 
       });
   };
 
@@ -55,8 +65,9 @@ export default function Index() {
           Bem-vindo(a) ao início de uma nova jornada
         </Text>
 
+        {successMessage ? <Text style={styles.successText}>{successMessage}</Text> : null}
         {errorLogin ? <Text style={styles.errorText}>{errorLogin}</Text> : null}
-        
+
         <TextInput
           style={styles.input}
           placeholder="E-mail"
@@ -68,29 +79,36 @@ export default function Index() {
           <TextInput
             style={styles.input}
             placeholder="Senha"
-            secureTextEntry={!showPassword}  // Controla a visibilidade da senha
+            secureTextEntry={!showPassword}
             value={password}
             onChangeText={setPassword}
           />
           <TouchableOpacity
             style={styles.icon}
-            onPress={() => setShowPassword(prevState => !prevState)}  // Alterna a visibilidade
+            onPress={() => setShowPassword(prevState => !prevState)}
           >
             <Ionicons
-              name={showPassword ? "eye-off" : "eye"}  // Ícone de olho fechado ou aberto
+              name={showPassword ? "eye-off" : "eye"}
               size={24}
               color="black"
             />
           </TouchableOpacity>
         </View>
 
-        <TouchableOpacity style={styles.button} onPress={validarCampos}>
-          <Text style={styles.textButton}>ENTRAR</Text>
+        <TouchableOpacity style={styles.button} onPress={validarCampos} disabled={isLoading}>
+          {isLoading ? (
+            <ActivityIndicator size="small" color="#FFF" /> // Exibe o indicador de carregamento
+          ) : (
+            <Text style={styles.textButton}>ENTRAR</Text>
+          )}
         </TouchableOpacity>
 
-        <TouchableOpacity style={styles.buttonCreate} onPress={() => router.push('/user_create')}>
-          <Text style={styles.buttonCreateText}>REGISTRAR</Text>
-        </TouchableOpacity>
+        <View style={styles.registerContainer}>
+          <Text style={styles.infoText}>Não possui conta? </Text>
+          <TouchableOpacity onPress={() => router.push('/user_create')}>
+            <Text style={styles.registerText}>REGISTRAR</Text>
+          </TouchableOpacity>
+        </View>
       </ImageBackground>
     </Animated.View>
   );
@@ -109,7 +127,7 @@ const styles = StyleSheet.create({
   texto1: {
     fontSize: 25,
     textAlign: 'center',
-    marginBottom: 30,
+    marginBottom: 20,
     color: '#fff',
   },
   input: {
@@ -123,39 +141,47 @@ const styles = StyleSheet.create({
     borderColor: 'black',
     borderWidth: 3,
   },
+  successText: {
+    color: '#00FF00',
+    fontSize: 20,
+    textAlign: 'center',
+    marginBottom: 20,
+  },
   errorText: {
-    color: 'red',
+    color: '#FF0000',
     fontSize: 20,
     textAlign: 'center',
     marginBottom: 20,
   },
   button: {
-    backgroundColor: 'green',
-    padding: 5,
+    backgroundColor: 'blue',
+    padding: 10,
     borderRadius: 20,
     width: '40%',
     alignSelf: 'center',
     borderWidth: 3,
+    alignItems: 'center', // Centraliza o ActivityIndicator
+    justifyContent: 'center',
   },
   textButton: {
     fontSize: 20,
     textAlign: 'center',
     color: '#fff',
   },
-  buttonCreate: {
-    backgroundColor: 'blue',
-    padding: 5,
-    borderWidth: 3,
-    borderColor: 'black',
-    borderRadius: 20,
-    width: '40%',
-    alignSelf: 'center',
+  registerContainer: {
+    flexDirection: 'row',
+    justifyContent: 'center',
     marginTop: 10,
   },
-  buttonCreateText: {
-    fontSize: 20,
-    textAlign: 'center',
+  infoText: {
+    fontSize: 15,
     color: '#fff',
+  },
+  registerText: {
+    fontSize: 15,
+    color: '#fff',
+    textDecorationLine: 'underline',
+    fontWeight: 'bold',
   },
   passwordContainer: {
     position: 'relative',
@@ -164,7 +190,7 @@ const styles = StyleSheet.create({
   },
   icon: {
     position: 'absolute',
-    right: 115,
+    right: 140,
     top: 15,
   },
 });

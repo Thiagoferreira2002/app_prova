@@ -1,10 +1,11 @@
-import React, { useEffect, useState } from 'react';
-import { StyleSheet, View, Text, ImageBackground, TextInput, TouchableOpacity, Animated } from "react-native";
-import { auth, db } from '../scripts/firebase-config';
+import { Ionicons } from '@expo/vector-icons'; // Importando o ícone do Ionicons
 import { useRouter } from 'expo-router';
+import { StatusBar } from 'expo-status-bar';
 import { createUserWithEmailAndPassword } from 'firebase/auth';
 import { ref, set } from 'firebase/database';
-import { StatusBar } from 'expo-status-bar';
+import { useEffect, useState } from 'react';
+import { ActivityIndicator, Animated, ImageBackground, StyleSheet, Text, TextInput, TouchableOpacity, View } from "react-native";
+import { auth, db } from '../scripts/firebase-config.js';
 
 export default function CreateUser() {
     const router = useRouter();
@@ -12,6 +13,9 @@ export default function CreateUser() {
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [errorCreateUser, setErrorCreateUser] = useState("");
+    const [isLoading, setIsLoading] = useState(false); // Estado de carregamento
+    const [successMessage, setSuccessMessage] = useState(""); // Estado de confirmação
+    const [showPassword, setShowPassword] = useState(false); // Estado de visibilidade da senha
 
     const validarCampos = () => {
         if (nome === "") {
@@ -31,6 +35,7 @@ export default function CreateUser() {
     };
 
     const createUser = () => {
+        setIsLoading(true); // Ativa o carregamento
         createUserWithEmailAndPassword(auth, email, password)
             .then((userCredential) => {
                 const user = userCredential.user;
@@ -38,10 +43,18 @@ export default function CreateUser() {
                     nome: nome,
                     email: email
                 });
-                router.push('/');
+                
+                setIsLoading(false); // Desativa o carregamento
+                setSuccessMessage("Registro concluído com sucesso!");
+
+                setTimeout(() => {
+                    setSuccessMessage(""); // Limpa a mensagem de sucesso após 2 segundos
+                    router.push('/');
+                }, 2000); // Espera 2 segundos antes de redirecionar
             })
             .catch((error) => {
                 setErrorCreateUser("Erro ao criar conta: " + error.message);
+                setIsLoading(false); // Desativa o carregamento em caso de erro
             });
     };
 
@@ -65,6 +78,7 @@ export default function CreateUser() {
 
                 <Text style={styles.titulo}>Cadastrar Usuário</Text>
 
+                {successMessage ? <Text style={styles.successText}>{successMessage}</Text> : null}
                 {errorCreateUser !== "" && (
                     <Text style={styles.alert}>{errorCreateUser}</Text>
                 )}
@@ -83,16 +97,32 @@ export default function CreateUser() {
                     onChangeText={setEmail}
                 />
 
-                <TextInput
-                    style={styles.input}
-                    secureTextEntry={true}
-                    placeholder='Senha'
-                    value={password}
-                    onChangeText={setPassword}
-                />
+                <View style={styles.passwordContainer}>
+                    <TextInput
+                        style={styles.input}
+                        secureTextEntry={!showPassword} // Controla a visibilidade da senha
+                        placeholder='Senha'
+                        value={password}
+                        onChangeText={setPassword}
+                    />
+                    <TouchableOpacity
+                        style={styles.icon}
+                        onPress={() => setShowPassword(!showPassword)} // Alterna a visibilidade
+                    >
+                        <Ionicons
+                            name={showPassword ? "eye-off" : "eye"} // Ícone de olho fechado ou aberto
+                            size={24}
+                            color="black"
+                        />
+                    </TouchableOpacity>
+                </View>
 
-                <TouchableOpacity style={styles.button} onPress={validarCampos}>
-                    <Text style={styles.textButton}>REGISTRAR</Text>
+                <TouchableOpacity style={styles.button} onPress={validarCampos} disabled={isLoading}>
+                    {isLoading ? (
+                        <ActivityIndicator size="small" color="#FFF" /> // Exibe o indicador de carregamento
+                    ) : (
+                        <Text style={styles.textButton}>REGISTRAR</Text>
+                    )}
                 </TouchableOpacity>
             </ImageBackground>
         </Animated.View>
@@ -110,24 +140,28 @@ const styles = StyleSheet.create({
         resizeMode: 'cover',
     },
     titulo: {
-        backgroundColor: 'red',
         color: 'black',
         fontSize: 20,
         marginBottom: 10,
         alignSelf: 'center',
-        padding: 5,
-        borderRadius: 20,
-        borderWidth: 2,
+        fontWeight: 'bold',
         width: 200,
         textAlign: 'center',
         marginTop: -10,
-
     },
     alert: {
-        fontSize: 18,
+        fontSize: 20,
         textAlign: 'center',
-        color: 'yellow',
+        color: '#FF0000',
         marginBottom: 10,
+        fontWeight: 'bold',
+    },
+    successText: {
+        fontSize: 20,
+        textAlign: 'center',
+        color: '#00FF00',
+        marginBottom: 10,
+        fontWeight: 'bold',
     },
     input: {
         fontSize: 15,
@@ -139,7 +173,16 @@ const styles = StyleSheet.create({
         alignSelf: 'center',
         borderWidth: 3,
         marginTop: 5,
-    
+    },
+    passwordContainer: {
+        position: 'relative',
+        width: '100%',
+        alignSelf: 'center',
+    },
+    icon: {
+        position: 'absolute',
+        right: 110,
+        top: 20,
     },
     button: {
         backgroundColor: 'green',
@@ -149,6 +192,8 @@ const styles = StyleSheet.create({
         alignSelf: 'center',
         borderWidth: 3,
         marginTop: 20,
+        alignItems: 'center',
+        justifyContent: 'center',
     },
     buttonBack: {
         backgroundColor: 'blue',
@@ -161,8 +206,9 @@ const styles = StyleSheet.create({
         left: 20,
     },
     textButton: {
-        fontSize: 16,
+        fontSize: 15,
         textAlign: 'center',
-        color: '#fff',
+        color: 'black',
+        fontWeight: 'bold',
     },
 });
