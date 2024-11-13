@@ -1,14 +1,16 @@
 import { useRouter } from 'expo-router';
-import React, { useEffect, useState } from 'react';
-import { auth } from '../scripts/firebase-config';
-import { StyleSheet, View, Text, TextInput, TouchableOpacity, ImageBackground, Animated , StatusBar } from "react-native";
 import { signInWithEmailAndPassword } from 'firebase/auth';
+import { useEffect, useState } from 'react';
+import { Animated, ImageBackground, StatusBar, StyleSheet, Text, TextInput, TouchableOpacity, View } from "react-native";
+import { Ionicons } from 'react-native-vector-icons'; // Importando ícone do Ionicons
+import { auth } from '../scripts/firebase-config';
 
 export default function Index() {
   const router = useRouter();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [errorLogin, setErrorLogin] = useState("");
+  const [showPassword, setShowPassword] = useState(false);  // Estado para controle de visibilidade da senha
 
   const validarCampos = () => {
     if (email === "") {
@@ -49,26 +51,38 @@ export default function Index() {
       <StatusBar backgroundColor='#fff' />
       <ImageBackground style={styles.logo} source={require('../assets/images/Logo_principal.jpg')}>
 
-      <Text style={styles.texto1}>
-  Bem-vindo(a) ao início de uma nova jornada!
-</Text>
+        <Text style={styles.texto1}>
+          Bem-vindo(a) ao início de uma nova jornada
+        </Text>
 
-      {errorLogin ? <Text style={styles.errorText}>{errorLogin}</Text> : null}
+        {errorLogin ? <Text style={styles.errorText}>{errorLogin}</Text> : null}
+        
         <TextInput
           style={styles.input}
           placeholder="E-mail"
           value={email}
           onChangeText={setEmail}
         />
-        <TextInput
-          style={styles.input}
-          placeholder="Senha"
-          secureTextEntry
-          value={password}
-          onChangeText={setPassword}
-        />
 
-      
+        <View style={styles.passwordContainer}>
+          <TextInput
+            style={styles.input}
+            placeholder="Senha"
+            secureTextEntry={!showPassword}  // Controla a visibilidade da senha
+            value={password}
+            onChangeText={setPassword}
+          />
+          <TouchableOpacity
+            style={styles.icon}
+            onPress={() => setShowPassword(prevState => !prevState)}  // Alterna a visibilidade
+          >
+            <Ionicons
+              name={showPassword ? "eye-off" : "eye"}  // Ícone de olho fechado ou aberto
+              size={24}
+              color="black"
+            />
+          </TouchableOpacity>
+        </View>
 
         <TouchableOpacity style={styles.button} onPress={validarCampos}>
           <Text style={styles.textButton}>ENTRAR</Text>
@@ -92,10 +106,11 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     resizeMode: 'cover',
   },
-  texto1:{
-    fontSize:25,
-    textAlign:'center',
-    marginBottom:30,
+  texto1: {
+    fontSize: 25,
+    textAlign: 'center',
+    marginBottom: 30,
+    color: '#fff',
   },
   input: {
     fontSize: 20,
@@ -107,24 +122,20 @@ const styles = StyleSheet.create({
     alignSelf: 'center',
     borderColor: 'black',
     borderWidth: 3,
-  
   },
   errorText: {
     color: 'red',
     fontSize: 20,
     textAlign: 'center',
     marginBottom: 20,
-    
   },
   button: {
     backgroundColor: 'green',
     padding: 5,
     borderRadius: 20,
-    
     width: '40%',
     alignSelf: 'center',
     borderWidth: 3,
-
   },
   textButton: {
     fontSize: 20,
@@ -132,7 +143,7 @@ const styles = StyleSheet.create({
     color: '#fff',
   },
   buttonCreate: {
-    backgroundColor: 'red',
+    backgroundColor: 'blue',
     padding: 5,
     borderWidth: 3,
     borderColor: 'black',
@@ -140,12 +151,20 @@ const styles = StyleSheet.create({
     width: '40%',
     alignSelf: 'center',
     marginTop: 10,
-    
-    
   },
   buttonCreateText: {
     fontSize: 20,
     textAlign: 'center',
     color: '#fff',
+  },
+  passwordContainer: {
+    position: 'relative',
+    width: '100%',
+    alignSelf: 'center',
+  },
+  icon: {
+    position: 'absolute',
+    right: 115,
+    top: 15,
   },
 });
