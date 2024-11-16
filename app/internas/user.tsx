@@ -1,8 +1,10 @@
 import { useRouter } from 'expo-router';
 import { signOut } from 'firebase/auth';
+import { addDoc, collection } from "firebase/firestore"; // Importando de 'firebase/firestore'
 import { useState } from 'react';
 import { KeyboardAvoidingView, Platform, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity } from "react-native";
-import { addDoc, auth, collection, db } from '../../scripts/firebase-config.js';
+import { auth, db } from '../../scripts/firebase-config'; // Certifique-se de importar do firebase-config
+
 
 
 export default function User() {

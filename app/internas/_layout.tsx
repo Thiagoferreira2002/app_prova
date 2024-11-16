@@ -17,21 +17,21 @@ export default function Layout() {
                 headerShown: false,
                 tabBarLabel: "Oque é RPG",
                 tabBarIcon: ({color}) => (
-                    <MaterialCommunityIcons name = "check-circle-outline" color={color} size={32}/>
+                    <MaterialCommunityIcons name = "bow-arrow" color={color} size={32}/>
                 )
             }} />
             <Tabs.Screen name="user" options={{
                  headerShown: false,
                 tabBarLabel: " Cadastro de História",
                 tabBarIcon: ({color}) => (
-                    <MaterialCommunityIcons name = "account" color={color} size={32}/>
+                    <MaterialCommunityIcons name = "script" color={color} size={32}/>
                 )
             }} />
             <Tabs.Screen name="about" options={{
                 headerShown: false,
                 tabBarLabel: "Suas Historias ",
                 tabBarIcon: ({color}) => (
-                    <MaterialCommunityIcons name = "information-outline" color={color} size={32}/>
+                    <MaterialCommunityIcons name = "book-open-variant" color={color} size={32}/>
                 )
             }} />
         </Tabs>

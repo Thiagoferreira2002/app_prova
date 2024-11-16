@@ -68,6 +68,7 @@ const styles = StyleSheet.create({
         color: '#333',
         textAlign: 'center',
         paddingVertical: 20,
+        marginTop:30,
     },
     scrollContainer: {
         flexGrow: 1,
