@@ -1,11 +1,8 @@
 import { useRouter } from 'expo-router';
-import { signOut } from 'firebase/auth';
-import { addDoc, collection } from "firebase/firestore"; // Importando de 'firebase/firestore'
+import { push, ref, set } from "firebase/database";
 import { useState } from 'react';
 import { KeyboardAvoidingView, Platform, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity } from "react-native";
 import { auth, db } from '../../scripts/firebase-config'; // Certifique-se de importar do firebase-config
-
-
 
 export default function User() {
     const router = useRouter();
@@ -16,17 +13,8 @@ export default function User() {
     const [characterRace, setCharacterRace] = useState('');
     const [characterHistory, setCharacterHistory] = useState('');
 
-    // Função de logout
-    const logout = () => {
-        signOut(auth).then(() => {
-            router.push("/");
-        }).catch((error) => {
-            console.log(error);
-        });
-    }
-
     // Função para salvar a história do personagem no Firestore
-    const saveCharacterStory = async () => {
+    /* const saveCharacterStory = async () => {
         if (characterName && characterClass && characterRace && characterHistory) {
           try {
             // Adicionando o personagem ao Firestore
@@ -45,7 +33,21 @@ export default function User() {
         } else {
           alert('Por favor, preencha todos os campos!');
         }
-      };
+      }; */
+
+     // Função para criar terefa no banco
+     const saveCharacterStory = () => {
+        const history = ref(db, 'history/' + auth.currentUser.uid);
+        const newHistoryRef = push(history);
+        set(newHistoryRef, {
+            characterName: characterName,
+            characterClass: characterClass,
+            characterRace : characterRace,
+            characterHistory: characterHistory
+        });
+        router.push("/internas/about");
+    }
+    
 
     return (
         <KeyboardAvoidingView style={styles.container} behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>

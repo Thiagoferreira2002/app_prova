@@ -1,136 +1,88 @@
-import { useRouter } from 'expo-router';
-import { signOut } from 'firebase/auth';
+import { getDatabase, onValue, ref } from "firebase/database";
 import { useEffect, useState } from 'react';
-import { Dimensions, SafeAreaView, ScrollView, StyleSheet, Text, View } from "react-native";
-import { auth, collection, db, getDocs } from '../../scripts/firebase-config';
+import { ScrollView, StyleSheet, Text, View } from 'react-native';
+import { auth } from '../../scripts/firebase-config'; // Certifique-se de importar corretamente
 
-export default function About() {
-    const router = useRouter();
-    const [characters, setCharacters] = useState([]);
+export default function CharacterDetails() {
+    const [character, setCharacter] = useState(null);
 
-    // Buscar personagens do Firestore quando a página é carregada
+    // Função para buscar as informações do personagem no Firebase
     useEffect(() => {
-        const fetchCharacters = async () => {
-            try {
-                const querySnapshot = await getDocs(collection(db, "characters"));
-                const charactersList = querySnapshot.docs.map(doc => doc.data());
-                setCharacters(charactersList);
-            } catch (error) {
-                console.log("Erro ao buscar personagens:", error);
+        const db = getDatabase();
+        const characterRef = ref(db, 'history/' + auth.currentUser.uid); // Corrigir a referência
+        const unsubscribe = onValue(characterRef, (snapshot) => {
+            const data = snapshot.val();
+            if (data) {
+                setCharacter(data); // Atualiza o estado com os dados do Firebase
+            } else {
+                console.log("No data available");
             }
-        };
-        fetchCharacters();
+        });
+
+        // Cleanup function para remover o listener quando o componente for desmontado
+        return () => unsubscribe();
     }, []);
 
-    const logout = () => {
-        signOut(auth).then(() => {
-            router.push("/");
-        }).catch((error) => {
-            console.log(error);
-        });
-    };
+    // Exibir um carregamento até que os dados sejam encontrados
+    if (!character) {
+        return (
+            <View style={styles.container}>
+                <Text style={styles.title}>Carregando...</Text>
+            </View>
+        );
+    }
 
     return (
-        <SafeAreaView style={styles.container}>
+        <ScrollView contentContainerStyle={styles.container}>
             <Text style={styles.title}>Suas Histórias</Text>
-            
-            <ScrollView contentContainerStyle={styles.scrollContainer}>
-                {characters.length === 0 ? (
-                    <Text style={styles.noDataText}>Você ainda não cadastrou nenhuma história!</Text>
-                ) : (
-                    characters.map((character, index) => (
-                        <View key={index} style={styles.characterCard}>
-                            <Text style={styles.characterTitle}>{character.characterName}</Text>
-                            <Text style={styles.characterInfo}>Classe: {character.characterClass}</Text>
-                            <Text style={styles.characterInfo}>Raça: {character.characterRace}</Text>
-                            <Text style={styles.characterHistoryTitle}>História:</Text>
-                            <Text style={styles.characterHistory}>{character.characterHistory}</Text>
-                        </View>
-                    ))
-                )}
-            </ScrollView>
 
-            
-        </SafeAreaView>
+            <View style={styles.detailContainer}>
+                <Text style={styles.label}>Nome:</Text>
+                <Text style={styles.detailText}>{character.characterName}</Text>
+            </View>
+
+            <View style={styles.detailContainer}>
+                <Text style={styles.label}>Classe:</Text>
+                <Text style={styles.detailText}>{character.characterClass}</Text>
+            </View>
+
+            <View style={styles.detailContainer}>
+                <Text style={styles.label}>Raça:</Text>
+                <Text style={styles.detailText}>{character.characterRace}</Text>
+            </View>
+
+            <View style={styles.detailContainer}>
+                <Text style={styles.label}>História:</Text>
+                <Text style={styles.detailText}>{character.characterHistory}</Text>
+            </View>
+        </ScrollView>
     );
 }
-
-const { width, height } = Dimensions.get('window');
 
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: '#F7F7F7',
-    },
-    title: {
-        fontSize: 32,
-        fontWeight: 'bold',
-        color: '#333',
-        textAlign: 'center',
-        paddingVertical: 20,
-        marginTop:30,
-    },
-    scrollContainer: {
-        flexGrow: 1,
+        paddingTop: 20,
         paddingHorizontal: 20,
     },
-    noDataText: {
-        fontSize: 20,
-        color: '#999',
+    title: {
+        fontSize: 30,
+        fontWeight: 'bold',
+        marginBottom: 20,
         textAlign: 'center',
-        marginTop: 30,
+        color: '#333',
     },
-    characterCard: {
-        backgroundColor: '#FFF',
-        padding: 20,
-        marginVertical: 10,
-        borderRadius: 10,
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.2,
-        shadowRadius: 5,
-        elevation: 5,
-        width: width * 0.9, // Ajuste para largura da tela
-        alignSelf: 'center',
-    },
-    characterTitle: {
-        fontSize: 24,
+    label: {
+        fontSize: 20,
+        marginBottom: 10,
         fontWeight: 'bold',
         color: '#333',
-        marginBottom: 10,
-        textAlign: 'center',
     },
-    characterInfo: {
+    detailContainer: {
+        marginBottom: 20,
+    },
+    detailText: {
         fontSize: 18,
         color: '#555',
-        marginBottom: 5,
-    },
-    characterHistoryTitle: {
-        fontSize: 20,
-        fontWeight: 'bold',
-        color: '#333',
-        marginTop: 10,
-        marginBottom: 5,
-    },
-    characterHistory: {
-        fontSize: 18,
-        color: '#444',
-        lineHeight: 24,
-        textAlign: 'justify',
-        marginBottom: 10,
-    },
-    logoutButton: {
-        backgroundColor: '#FF6347',
-        paddingVertical: 15,
-        borderRadius: 10,
-        alignItems: 'center',
-        marginTop: 20,
-        width: '90%',
-        alignSelf: 'center',
-    },
-    buttonText: {
-        color: '#fff',
-        fontSize: 20,
-        fontWeight: 'bold',
     },
 });
