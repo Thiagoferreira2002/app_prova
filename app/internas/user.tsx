@@ -103,6 +103,7 @@ const styles = StyleSheet.create({
         flex: 1,
         paddingTop: 20,
         paddingHorizontal: 20,
+        backgroundColor : 'yellow'
     },
     title: {
         fontSize: 30,
@@ -140,7 +141,7 @@ const styles = StyleSheet.create({
         textAlignVertical: 'top',
     },
     saveButton: {
-        backgroundColor: 'black',
+        backgroundColor: 'green',
         paddingVertical: 15,
         paddingHorizontal: 30,
         borderRadius: 10,

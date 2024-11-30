@@ -12,7 +12,7 @@ import {
     TouchableOpacity,
     View
 } from "react-native";
-import { auth, db } from '../../scripts/firebase-config.js'; // Certifique-se de importar corretamente
+import { auth, db } from '../../scripts/firebase-config.js';
 
 export default function About() {
     const router = useRouter();
@@ -20,7 +20,6 @@ export default function About() {
     const [historias, setHistorias] = useState([]);
     const [loading, setLoading] = useState(true);
 
-    // Função para buscar as histórias salvas no Realtime Database
     useEffect(() => {
         const fetchHistorias = () => {
             const historyRef = ref(db, `history/${auth.currentUser?.uid}`);
@@ -41,11 +40,9 @@ export default function About() {
 
         fetchHistorias();
 
-        // Cleanup para remover o listener ao sair da página
         return () => ref(db, `history/${auth.currentUser?.uid}`).off();
     }, []);
 
-    // Função para excluir uma história
     const deleteHistory = (id) => {
         const historyRef = ref(db, `history/${auth.currentUser?.uid}/${id}`);
         remove(historyRef)
@@ -58,10 +55,20 @@ export default function About() {
             });
     };
 
+    const handleLogout = () => {
+        alert('Você saiu!');
+        router.push('/'); // Navegar para a tela de login ou inicial
+    };
+
     return (
         <KeyboardAvoidingView style={styles.container} behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
             <ScrollView contentContainerStyle={styles.formContainer}>
-                <Text style={styles.title}>Histórias Salvas</Text>
+                <View style={styles.header}>
+                    <Text style={styles.title}>Histórias Salvas</Text>
+                    <TouchableOpacity style={styles.logoutButton} onPress={handleLogout}>
+                        <Text style={styles.logoutButtonText}>Sair</Text>
+                    </TouchableOpacity>
+                </View>
 
                 {loading ? (
                     <View style={styles.loadingContainer}>
@@ -100,13 +107,31 @@ const styles = StyleSheet.create({
         paddingTop: 20,
         paddingHorizontal: 20,
     },
+    header: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        marginBottom: 30,
+    },
     title: {
         fontSize: 30,
         fontWeight: 'bold',
-        marginTop: 30,
-        marginBottom: 30,
-        textAlign: 'center',
         color: 'blue',
+    },
+    logoutButton: {
+        backgroundColor: '#FF0000',
+        paddingVertical: 10,
+        paddingHorizontal: 20,
+        borderRadius: 20,
+        width: 100,
+        borderWidth: 4,
+        marginTop: 10, // Adiciona espaçamento acima do botão
+    },
+    logoutButtonText: {
+        color: '#fff',
+        fontSize: 16,
+        fontWeight: 'bold',
+        textAlign: 'center',
     },
     formContainer: {
         flexGrow: 1,
@@ -149,8 +174,8 @@ const styles = StyleSheet.create({
         paddingHorizontal: 20,
         borderRadius: 5,
         alignItems: 'center',
-        width:200,
-        left:150
+        width: 200,
+        left: 150,
     },
     deleteButton: {
         backgroundColor: '#FF0000',

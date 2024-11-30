@@ -7,7 +7,13 @@ export default function Tasks() {
 
   const handleNavigate = () => {
     // Função que navega para a página de criação de história
-    router.push('/internas/user'); // Substitua '/create-story' pela rota da sua página de criação
+    router.push('/internas/user');
+  };
+
+  const handleLogout = () => {
+    // Função para realizar logout (implemente a lógica necessária)
+    alert("Você saiu!");
+    router.push('/'); // Redirecionar para a página inicial ou de login
   };
 
   return (
@@ -15,10 +21,15 @@ export default function Tasks() {
       {/* StatusBar */}
       <ExpoStatusBar style="light" backgroundColor="#000" />
 
+      {/* Botão de Sair */}
+      <TouchableOpacity style={styles.logoutButton} onPress={handleLogout}>
+        <Text style={styles.logoutButtonText}>Sair</Text>
+      </TouchableOpacity>
+
       <ImageBackground style={styles.logo} source={require('./images/RPG.png')}>
         <ScrollView contentContainerStyle={styles.scrollContainer}>
           <View style={styles.textContainer}>
-            <Text style={styles.title}>RPG - O que é e como funciona?</Text>
+            <Text style={styles.title}>RPG - O que é e como funciona?</Text> 
             <Text style={styles.paragraph}>
               RPG (Role-Playing Game, ou Jogo de Interpretação de Papéis) é um tipo de jogo onde os jogadores assumem os papéis de personagens fictícios e vivem aventuras em mundos imaginários. Durante o jogo, os participantes criam e desenvolvem seus personagens, geralmente com habilidades e características únicas, e interagem com outros jogadores e o ambiente de maneira que simula um mundo real ou fantástico.
             </Text>
@@ -77,7 +88,7 @@ const styles = StyleSheet.create({
   },
   scrollContainer: {
     flexGrow: 1,
-    paddingBottom: 20,  // Para garantir que o conteúdo não fique cortado
+    paddingBottom: 20, // Para garantir que o conteúdo não fique cortado
   },
   textContainer: {
     flex: 1,
@@ -119,5 +130,22 @@ const styles = StyleSheet.create({
     fontSize: 18,
     color: '#fff',
     fontWeight: 'bold',
+  },
+  logoutButton: {
+    position: 'absolute',
+    top: 40,
+    right: 20,
+    backgroundColor: 'red',
+    padding: 9,
+    borderRadius: 20,
+    zIndex: 6,
+    width: 100 ,
+    borderWidth: 3,
+  },
+  logoutButtonText: {
+    color: '#fff',
+    fontSize: 16,
+    fontWeight: 'bold',
+    textAlign:'center'
   },
 });
